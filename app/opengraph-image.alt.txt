@@ -1,0 +1,1 @@
+HugType: make your text hug anything. A free Figma plugin.

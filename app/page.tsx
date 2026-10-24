@@ -1,19 +1,28 @@
-import { Button } from "@/components/ui/button"
+import { Landing } from "@/components/hugtype/landing"
+import { AUTHOR, FIGMA_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site"
+
+// Données structurées : aident Google à comprendre que c'est un plugin gratuit
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  applicationCategory: "DesignApplication",
+  operatingSystem: "Figma",
+  downloadUrl: FIGMA_URL,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  author: { "@type": "Person", name: AUTHOR.name, url: AUTHOR.url },
+}
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
+      <Landing />
+    </>
   )
 }

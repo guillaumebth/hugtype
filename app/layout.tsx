@@ -1,24 +1,52 @@
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata, Viewport } from "next"
 import { Toaster } from "sonner"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { fontMono, fontSans } from "@/lib/fonts"
+import { AUTHOR, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
-
 export const metadata: Metadata = {
-  title: "My App",
-  description: "",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [AUTHOR],
+  creator: AUTHOR.name,
+  keywords: [
+    "HugType",
+    "Figma plugin",
+    "text wrap",
+    "wrap text around image",
+    "text on path",
+    "typography",
+    "Figma Community",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
+  formatDetection: { telephone: false, email: false, address: false },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
 }
 
 export default function RootLayout({
@@ -28,12 +56,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="fr"
+      lang="en"
       suppressHydrationWarning
       className={cn("font-sans antialiased", fontSans.variable, fontMono.variable)}
     >
       <body>
-        <ThemeProvider>
+        <ThemeProvider forcedTheme="dark">
           {children}
           <Toaster />
         </ThemeProvider>
