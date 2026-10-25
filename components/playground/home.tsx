@@ -1,4 +1,5 @@
 import { HeartLogo } from "@/components/hugtype/heart-logo"
+import { FloatingSheets } from "@/components/playground/floating-sheets"
 import { PluginPanel } from "@/components/playground/plugin-panel"
 
 export function Home() {
@@ -35,6 +36,8 @@ export function Home() {
           Built by bguillaume.info
         </a>
       </footer>
+
+      <FloatingSheets />
     </div>
   )
 }
