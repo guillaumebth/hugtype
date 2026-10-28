@@ -62,7 +62,10 @@ export function HomeV2() {
     <div className="flex min-h-svh flex-col bg-black text-[#ececec] md:h-svh md:overflow-hidden">
       {/* Bandeau du haut */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-5 pt-5 pb-2 text-[13px] md:px-8 md:pt-7">
-        <p className="tracking-tight">HUGTYPE™ハグタイプ FIGMA PLUGIN</p>
+        <p className="tracking-tight">
+          HUGTYPE™ハグタイプ
+          <span className="hidden sm:inline"> FIGMA PLUGIN</span>
+        </p>
         {/* L'action principale : installer le plugin */}
         <a
           href={FIGMA_URL}
@@ -76,7 +79,7 @@ export function HomeV2() {
       </div>
 
       {/* Titre, centré */}
-      <h1 className="shrink-0 px-5 pt-3 pb-2 text-center text-[#ff3410] text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-medium tracking-[-0.03em] md:px-8">
+      <h1 className="shrink-0 px-5 pt-3 pb-2 text-center text-[17vw] leading-[0.95] font-medium tracking-[-0.03em] text-[#ff3410] md:px-8 md:text-[clamp(3rem,7.5vw,7rem)]">
         HUGTYPE™
       </h1>
 
@@ -84,7 +87,7 @@ export function HomeV2() {
       <div className="mx-auto grid w-full max-w-[640px] shrink-0 gap-x-12 gap-y-4 px-5 pt-4 pb-2 text-[14px] leading-[1.3] tracking-[-0.01em] sm:grid-cols-2">
         <p>
           Make your text{" "}
-          <HeartLogo className="inline-block text-[#ff3410] h-[0.72em] w-auto -translate-y-[0.04em] align-baseline" />{" "}
+          <HeartLogo className="inline-block h-[0.72em] w-auto -translate-y-[0.04em] align-baseline text-[#ff3410]" />{" "}
           hug anything. HUGTYPE™ is a free Figma plugin to wrap a paragraph
           around a cutout, pour it inside a shape, or run a line along its
           outline.
@@ -97,7 +100,7 @@ export function HomeV2() {
       </div>
 
       {/* L'objet, centré, sur toute la place restante */}
-      <main className="relative h-[80svh] shrink-0 md:h-auto md:min-h-0 md:flex-1">
+      <main className="relative aspect-[16/25] w-full shrink-0 md:aspect-auto md:h-auto md:min-h-0 md:flex-1">
         <div
           className={
             focused
@@ -131,22 +134,34 @@ export function HomeV2() {
               setOpen(true)
               setFocus(true)
             }}
-            className="absolute inset-0 z-10 flex cursor-pointer items-end justify-center pb-10 focus-visible:outline-none"
-          >
-            <span className="rounded-full bg-[#2e2e30] px-4 py-2 text-[10px] font-bold tracking-[0.08em] text-[#f2f2f2] uppercase">
-              Tap to use
-            </span>
-          </button>
+            className="absolute inset-0 z-10 cursor-pointer focus-visible:outline-none"
+          />
         )}
         {/* Ouvrir / refermer, aussi au clavier */}
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 cursor-pointer text-[13px] tracking-tight text-[#8c8c8c] transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none"
+          className="absolute bottom-2 left-1/2 hidden -translate-x-1/2 cursor-pointer text-[13px] tracking-tight text-[#8c8c8c] transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none md:block"
         >
           {open ? "Close" : "Click to open"}
         </button>
       </main>
+
+      {/* téléphone : la touche pour passer l'objet en plein écran, sous l'objet */}
+      {phone && (
+        <div className="flex shrink-0 justify-center pt-1 pb-2">
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(true)
+              setFocus(true)
+            }}
+            className="inline-flex h-9 cursor-pointer items-center rounded-full bg-[#2e2e30] px-5 text-[10px] font-bold tracking-[0.08em] text-[#f2f2f2] uppercase focus-visible:outline-none"
+          >
+            Tap to use the device
+          </button>
+        </div>
+      )}
 
       <footer className="flex shrink-0 justify-center px-5 py-3 text-[13px] tracking-tight">
         <a

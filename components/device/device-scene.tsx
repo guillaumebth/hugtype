@@ -257,15 +257,16 @@ function Device({
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))
     const aspect = size.width / size.height
     // de l'air autour de l'objet sur grand écran ; sur téléphone, il prend toute la place
-    const margin = focus ? 1.06 : aspect < 0.8 ? 1.02 : 1.2
+    const margin = focus ? 1.06 : aspect < 0.8 ? 1.1 : 1.2
     const h = THREE.MathUtils.lerp(CLOSED_H, OPEN_H, k) * margin
     const w = OPEN_W * margin
     const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect))
     const targetY = THREE.MathUtils.lerp(BOTTOM_CENTER, 0, k)
     // on vise un peu sous le centre : l'objet remonte vers le texte au-dessus
-    const lift = h * 0.035
+    // (sur téléphone, le texte n'est pas dans le cadre : pas de décalage)
+    const lift = aspect < 0.8 ? 0 : h * 0.035
     // en plein écran, on décale un peu vers la droite pour garder la molette dans le cadre
-    const shiftX = focus ? 0.2 * k : 0
+    const shiftX = focus || aspect < 0.8 ? 0.2 * k : 0
     cam.position.set(shiftX, targetY - lift, dist)
     cam.lookAt(shiftX, targetY - lift, 0)
 
