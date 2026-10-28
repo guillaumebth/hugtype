@@ -122,6 +122,11 @@
   * {
     @apply border-border outline-ring/50;
     }
+  /* sélection de texte : surlignage orange HugType, texte noir */
+  ::selection {
+    background-color: #ff3410;
+    color: #000;
+    }
   body {
     @apply bg-background text-foreground;
     }
