@@ -16,13 +16,13 @@ export function DeviceLoader({
       style={{ opacity: done ? 0 : 1 }}
     >
       <div className="flex w-[148px] flex-col gap-2">
-        <div className="flex justify-between font-mono text-[10px] tracking-wider text-[#222] uppercase">
+        <div className="flex justify-between font-mono text-[10px] tracking-wider text-white/80 uppercase">
           <span>Loading</span>
           <span>{String(pct).padStart(3, "0")}%</span>
         </div>
-        <div className="h-px w-full bg-[#bdbdbd]">
+        <div className="h-px w-full bg-white/20">
           <div
-            className="h-px bg-[#222] transition-[width] duration-300"
+            className="h-px bg-white transition-[width] duration-300"
             style={{ width: `${pct}%` }}
           />
         </div>

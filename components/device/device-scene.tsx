@@ -13,7 +13,6 @@ import { ToneMappingMode } from "postprocessing"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
-import { AnnotationLayer, Annotator } from "@/components/device/annotations"
 import { DeviceLoader } from "@/components/device/device-loader"
 import { DeviceScreens } from "@/components/device/device-screens"
 import type { PluginState } from "@/components/playground/use-plugin"
@@ -53,21 +52,12 @@ export function DeviceScene({
   onOpenChange: (open: boolean) => void
   onScreensOn: (on: boolean) => void
 }) {
-  // légendes visibles une fois les écrans allumés
-  const [labels, setLabels] = useState(false)
-  // dès la première interaction avec l'objet, les légendes s'effacent pour de bon
-  const [dismissed, setDismissed] = useState(false)
   // l'objet est chargé et affiché : on retire l'écran de chargement
   const [ready, setReady] = useState(false)
   const { progress } = useProgress()
-  const layer = useRef<HTMLDivElement>(null)
 
   return (
-    <div
-      className="relative size-full"
-      onPointerDownCapture={() => labels && setDismissed(true)}
-      onWheelCapture={() => labels && setDismissed(true)}
-    >
+    <div className="relative size-full">
       <Canvas
         dpr={[1, 2]}
         shadows={{ type: THREE.PCFShadowMap }}
@@ -84,13 +74,9 @@ export function DeviceScene({
           p={p}
           open={open}
           onOpenChange={onOpenChange}
-          onScreensOn={(on) => {
-            setLabels(on)
-            onScreensOn(on)
-          }}
+          onScreensOn={onScreensOn}
           onReady={() => setReady(true)}
         />
-        <Annotator layer={layer} />
         {/* occlusion ambiante : assombrit les creux (écrans encastrés, charnière, fente de la molette),
           puis rendu « neutre » qui garde les couleurs saturées */}
         <EffectComposer multisampling={4}>
@@ -103,7 +89,6 @@ export function DeviceScene({
           <ToneMapping mode={ToneMappingMode.NEUTRAL} />
         </EffectComposer>
       </Canvas>
-      <AnnotationLayer ref={layer} visible={labels && !dismissed} />
       <DeviceLoader progress={ready ? 100 : progress} done={ready} />
     </div>
   )
@@ -171,12 +156,12 @@ function Device({
 
   // Matériaux, façon Braun / Teenage Engineering :
   // coque, charnière et moyeu de la molette en plastique anthracite,
-  // similicuir orange au dos (cœur embossé dans la texture), molette orange,
+  // similicuir noir au dos (cœur embossé dans la texture), molette orange,
   // gravure et code-barres imprimés en blanc, petites pièces sombres (fentes, connecteur).
   // Tout projette et reçoit des ombres, sauf les écrans (ils émettent leur propre lumière).
   useEffect(() => {
     const shell = blackPlastic()
-    const leather = orangeLeather()
+    const leather = leatherPanel()
     scene.traverse((o) => {
       if (!(o instanceof THREE.Mesh)) return
       const name = (o.material as THREE.Material).name
@@ -269,8 +254,10 @@ function Device({
     const w = OPEN_W * margin
     const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect))
     const targetY = THREE.MathUtils.lerp(BOTTOM_CENTER, 0, k)
-    cam.position.set(0, targetY, dist)
-    cam.lookAt(0, targetY, 0)
+    // on vise un peu sous le centre : l'objet remonte vers le texte au-dessus
+    const lift = h * 0.08
+    cam.position.set(0, targetY - lift, dist)
+    cam.lookAt(0, targetY - lift, 0)
 
     // Molette : elle tourne d'une dent par pixel de réglage
     const wheel = state.scene.getObjectByName("Wheel")
@@ -413,16 +400,19 @@ function blackPlastic() {
     metalness: 0,
     roughness: 1,
     roughnessMap: noiseTexture(256, 100, 140, 24),
+    // grain de plastique injecté : une micro-texture en relief, à peine visible
+    bumpMap: noiseTexture(256, 70, 190, 24, 0.7),
+    bumpScale: 0.5,
     clearcoat: 0.25,
     clearcoatRoughness: 0.5,
   })
 }
 
-// Similicuir orange (dos de la TP-7) avec le cœur HugType embossé dans la matière.
+// Similicuir du capot (noir) avec le cœur HugType embossé dans la matière.
 // Une seule texture couvre le panneau (UV = position / 5, cf. Blender) :
 // - relief (bump) : le grain du cuir + le cœur légèrement bombé, aux bords adoucis
 // - rugosité : le cœur est un peu plus lisse que le grain autour, il accroche la lumière
-function orangeLeather() {
+function leatherPanel() {
   const N = 2048
   // cœur du logo (heart-logo.tsx), 0.8 unité de large, centré sur le panneau
   const HEART =
@@ -477,8 +467,9 @@ function orangeLeather() {
     return t
   }
   return new THREE.MeshStandardMaterial({
-    name: "Orange_Leather",
-    color: ORANGE_ALBEDO,
+    name: "Black_Leather",
+    // similicuir noir (le grain et le cœur embossé restent dans la texture)
+    color: "#1b1b1d",
     metalness: 0,
     roughness: 1,
     envMapIntensity: 0.35,

@@ -1,7 +1,7 @@
 "use client"
 
 import { createPortal, useFrame, type ThreeEvent } from "@react-three/fiber"
-import { Fragment, useEffect, useRef } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import {
@@ -20,6 +20,7 @@ import {
   createPreviewController,
   type PreviewController,
 } from "@/lib/hugtype/preview-controller"
+import { press, release, slide, tick } from "@/lib/hugtype/sound"
 import { FIGMA_URL } from "@/lib/site"
 
 // Résolution des textures : 3 pixels de texture par px d'interface (net même en grand)
@@ -39,6 +40,75 @@ type Surface = {
   tex: THREE.CanvasTexture
   mat: THREE.MeshBasicMaterial
   zones: Zone[]
+}
+
+// La vitre posée sur un écran : elle n'ajoute que des reflets (mélange additif),
+// donc le noir de l'écran reste noir. Quelques traces de doigts dans la rugosité
+// ne se voient que dans les reflets. Elle ne capte pas les clics (raycast vide).
+function ScreenGlass({ id }: { id: ScreenId }) {
+  const { w, h } = SCREENS[id]
+  const [mat] = useState(() => {
+    const W = 512
+    const H = Math.round((W * h) / w)
+    const c = document.createElement("canvas")
+    c.width = W
+    c.height = H
+    const ctx = c.getContext("2d")!
+    // valeurs de gris = rugosité : vitre lisse (≈ 0.06), traces plus mates (≈ 0.3–0.45)
+    ctx.fillStyle = "rgb(16,16,16)"
+    ctx.fillRect(0, 0, W, H)
+    // tirage pseudo-aléatoire stable (mêmes traces à chaque visite)
+    let seed = id.length * 9301 + W
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+    // quelques traînées floues
+    for (let i = 0; i < 3; i++) {
+      const x = rnd() * W
+      const y = rnd() * H
+      const r = 30 + rnd() * 60
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r)
+      g.addColorStop(0, "rgba(90,90,90,0.35)")
+      g.addColorStop(1, "rgba(90,90,90,0)")
+      ctx.fillStyle = g
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.scale(1.8, 1)
+      ctx.translate(-x, -y)
+      ctx.fillRect(x - r, y - r, r * 2, r * 2)
+      ctx.restore()
+    }
+    // deux empreintes : des ovales concentriques très fins
+    for (let i = 0; i < 2; i++) {
+      const x = 40 + rnd() * (W - 80)
+      const y = 20 + rnd() * (H - 40)
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(rnd() * Math.PI)
+      ctx.strokeStyle = "rgba(115,115,115,0.4)"
+      ctx.lineWidth = 1.2
+      for (let k = 2; k < 22; k += 1.6) {
+        ctx.beginPath()
+        ctx.ellipse(0, 0, k * 0.75, k, 0, 0, Math.PI * 2)
+        ctx.stroke()
+      }
+      ctx.restore()
+    }
+    const tex = new THREE.CanvasTexture(c)
+    return new THREE.MeshPhysicalMaterial({
+      color: "#000",
+      metalness: 0,
+      roughness: 1,
+      roughnessMap: tex,
+      envMapIntensity: 0.9,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  })
+  return (
+    <mesh position={[0, 0, -0.011]} material={mat} raycast={() => null}>
+      <planeGeometry args={[w, h]} />
+    </mesh>
+  )
 }
 
 // Les trois écrans : l'interface est dessinée dans une texture qui « éclaire » la vitre de l'écran
@@ -199,8 +269,12 @@ export function DeviceScreens({
         return st.set("side", a.v)
       case "alignInside":
         return st.set("alignInside", a.v)
-      case "dial":
-        return st.set(a.key, dialValue(a, pt.x, pt.y))
+      case "dial": {
+        const v = dialValue(a, pt.x, pt.y)
+        // un tic par cran, comme une molette crantée
+        if (v !== (a.key === "start" ? st.settings.start : st.margin)) tick()
+        return st.set(a.key, v)
+      }
       case "figma":
         window.open(FIGMA_URL, "_blank", "noopener,noreferrer")
     }
@@ -269,6 +343,9 @@ export function DeviceScreens({
         const zone = hitZone(surfaces.current![id].zones, pt.x, pt.y)
         if (!zone) return
         drag.current = { screen: id, zone, pointerId: e.pointerId }
+        // le clic de la touche (l'interrupteur a son double clic, le cadran ses tics)
+        if (zone.action.type === "view") slide()
+        else if (zone.action.type !== "dial") press()
         run(zone.action, pt)
       },
       onPointerMove(e: ThreeEvent<PointerEvent>) {
@@ -303,6 +380,13 @@ export function DeviceScreens({
         e.stopPropagation()
         ;(e.target as Element).releasePointerCapture(e.pointerId)
         drag.current = null
+        // la touche qui remonte
+        if (
+          d.zone &&
+          d.zone.action.type !== "dial" &&
+          d.zone.action.type !== "view"
+        )
+          release()
         if (id === "preview") {
           preview.current?.up()
           setCursor(preview.current?.cursor() ?? null)
@@ -344,10 +428,17 @@ export function DeviceScreens({
         return (
           <Fragment key={id}>
             {createPortal(
-              <mesh position={[0, 0, -0.02]} {...handlers(id)}>
-                <planeGeometry args={[SCREENS[id].w, SCREENS[id].h]} />
-                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-              </mesh>,
+              <>
+                <mesh position={[0, 0, -0.02]} {...handlers(id)}>
+                  <planeGeometry args={[SCREENS[id].w, SCREENS[id].h]} />
+                  <meshBasicMaterial
+                    transparent
+                    opacity={0}
+                    depthWrite={false}
+                  />
+                </mesh>
+                <ScreenGlass id={id} />
+              </>,
               node
             )}
           </Fragment>

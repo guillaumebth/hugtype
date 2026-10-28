@@ -301,15 +301,14 @@ export function controlsLayout(
     id: "figma",
     action: { type: "figma" },
     draw: (c, hover) => {
-      rr(c, fb, 16)
-      c.fillStyle = hover ? "#ffffff" : "#e9e9e9"
-      c.fill()
+      // touche sombre, comme les autres touches de l'écran
+      key(c, fb, 16, hover)
       const label = "TEST ON FIGMA"
       const tw = measure(ctx, label, 700, 11, 0.8)
       const x0 = fb.x + (fb.w - (9.3 + 8 + tw)) / 2
       figmaLogo(c, x0, fb.y + fb.h / 2 - 7, 14)
       text(c, label, x0 + 9.3 + 8, fb.y + fb.h / 2 + 0.5, {
-        color: "#111",
+        color: C.white,
         weight: 700,
         size: 11,
         spacing: 0.8,
