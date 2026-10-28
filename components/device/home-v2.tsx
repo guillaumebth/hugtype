@@ -84,7 +84,7 @@ export function HomeV2() {
       <div className="mx-auto grid w-full max-w-[640px] shrink-0 gap-x-12 gap-y-4 px-5 pt-4 pb-2 text-[14px] leading-[1.3] tracking-[-0.01em] sm:grid-cols-2">
         <p>
           Make your text{" "}
-          <HeartLogo className="inline-block h-[0.72em] w-auto -translate-y-[0.04em] align-baseline" />{" "}
+          <HeartLogo className="inline-block text-[#ff3410] h-[0.72em] w-auto -translate-y-[0.04em] align-baseline" />{" "}
           hug anything. HUGTYPE™ is a free Figma plugin to wrap a paragraph
           around a cutout, pour it inside a shape, or run a line along its
           outline.
