@@ -16,8 +16,12 @@ export const VIDEO_H = 135
 export function FloatingVideo({
   place,
   z = 0,
+  flat,
+  caption,
   onFront,
 }: {
+  flat?: boolean
+  caption?: { n: string; title: string }
   place?: { x: number; y: number; rot: number }
   z?: number
   onFront?: () => void
@@ -46,20 +50,31 @@ export function FloatingVideo({
           rotate: place ? `${place.rot}deg` : undefined,
         }}
         className={
-          "fixed w-40 cursor-grab touch-none overflow-hidden border border-white/15 bg-black shadow-[0_10px_30px_rgba(0,0,0,0.5)] select-none hover:border-white/40 focus-visible:border-white focus-visible:outline-none active:cursor-grabbing md:w-60 " +
+          "fixed w-40 cursor-grab touch-none select-none focus-visible:outline-none active:cursor-grabbing md:w-60 " +
+          (flat
+            ? "focus-visible:outline-2 focus-visible:outline-[#222] "
+            : "border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:border-white/40 focus-visible:border-white ") +
           (left == null ? "right-4 bottom-4" : "")
         }
       >
-        <video
-          src={SRC}
-          poster={POSTER}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="pointer-events-none block aspect-video w-full"
-        />
+        <div className="overflow-hidden bg-black">
+          <video
+            src={SRC}
+            poster={POSTER}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="pointer-events-none block aspect-video w-full"
+          />
+        </div>
+        {caption && (
+          <div className="pointer-events-none absolute top-full left-0 mt-1.5 text-[10px] leading-tight whitespace-nowrap text-[#444]">
+            <span className="font-mono text-[#6b6b6b]">{caption.n}</span>{" "}
+            {caption.title}
+          </div>
+        )}
       </div>
 
       {open && (

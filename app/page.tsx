@@ -1,4 +1,4 @@
-import { Home } from "@/components/playground/home"
+import { HomeV2 } from "@/components/device/home-v2"
 import { AUTHOR, FIGMA_URL, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site"
 
 // Données structurées : aident Google à comprendre que c'est un plugin gratuit
@@ -22,7 +22,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
-      <Home />
+      <HomeV2 />
     </>
   )
 }

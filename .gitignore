@@ -37,3 +37,7 @@ next-env.d.ts
 
 # claude local settings
 .claude/settings.local.json
+
+# blender : copie de sauvegarde automatique et rendus de travail
+*.blend1
+/blender/render-*.png
