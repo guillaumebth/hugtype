@@ -5,8 +5,8 @@ import { useState } from "react"
 import { Lightbox } from "@/components/playground/lightbox"
 import { useFloating } from "@/hooks/use-floating"
 
-const SRC = "/video/hugtype.mp4"
-const POSTER = "/video/hugtype-poster.jpg"
+export const SRC = "/video/hugtype.mp4"
+export const POSTER = "/video/hugtype-poster.jpg"
 
 export const VIDEO_W = 240
 export const VIDEO_H = 135

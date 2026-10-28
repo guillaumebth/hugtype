@@ -25,7 +25,7 @@ const MODEL = "/models/hugtype-device.glb"
 const OPEN_H = 8.6
 const OPEN_W = 5.3
 // hauteur cadrée quand l'objet est fermé : bien plus que sa taille réelle (≈ 4.4), pour qu'il reste petit
-const CLOSED_H = 7
+const CLOSED_H = 9
 const BOTTOM_CENTER = -2.175
 
 // Un cran de molette = une dent (48 dents) = 1 px de réglage
@@ -264,7 +264,7 @@ function Device({
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))
     const aspect = size.width / size.height
     // de l'air autour de l'objet sur grand écran ; sur téléphone, il prend toute la place
-    const margin = aspect < 0.8 ? 1.04 : 1.18
+    const margin = aspect < 0.8 ? 1.12 : 1.45
     const h = THREE.MathUtils.lerp(CLOSED_H, OPEN_H, k) * margin
     const w = OPEN_W * margin
     const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect))

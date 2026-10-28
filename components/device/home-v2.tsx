@@ -1,12 +1,12 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { DeviceLoader } from "@/components/device/device-loader"
+import { HomeVideo } from "@/components/device/home-video"
 import { HeartLogo } from "@/components/hugtype/heart-logo"
 import { FigmaLogo } from "@/components/playground/plugin-panel"
-import { FloatingSheets } from "@/components/playground/floating-sheets"
 import { usePlugin } from "@/components/playground/use-plugin"
 import { FIGMA_URL } from "@/lib/site"
 
@@ -22,8 +22,6 @@ export function HomeV2() {
   const [screensOn, setScreensOn] = useState(false)
   // l'intro du plugin (la veste qui glisse) attend que les écrans soient allumés
   const p = usePlugin({ introReady: screensOn })
-  // zone libre sous le texte, où sont posées les planches et la vidéo
-  const desk = useRef<HTMLDivElement>(null)
 
   // à l'arrivée, l'objet s'ouvre tout seul après un court instant
   useEffect(() => {
@@ -69,9 +67,10 @@ export function HomeV2() {
               jacket in the preview, and roll the orange wheel to set the
               offset. Your text stays native and editable.
             </p>
+            {/* la vidéo, sous le premier paragraphe (colonne de gauche) */}
+            <HomeVideo />
           </div>
-
-          <div ref={desk} className="min-h-0 flex-1" />
+          <div className="min-h-0 flex-1" />
 
           <div className="flex flex-col gap-1 text-[13px] tracking-tight">
             <a
@@ -103,8 +102,6 @@ export function HomeV2() {
           </button>
         </div>
       </div>
-
-      <FloatingSheets zone={desk} />
     </div>
   )
 }
