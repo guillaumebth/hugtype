@@ -77,7 +77,7 @@ export function usePlugin({
 
   useEffect(() => {
     let alive = true
-    loadCutout("jacket", "Jacket", "/samples/jacket.png").then((c) => {
+    loadCutout("jacket", "Jacket", "/samples/jacket.webp").then((c) => {
       if (alive) setCutout(c)
     })
     document.fonts

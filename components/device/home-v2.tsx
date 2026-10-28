@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 
 import { DeviceLoader } from "@/components/device/device-loader"
 import { HeartLogo } from "@/components/hugtype/heart-logo"
@@ -16,12 +16,41 @@ const DeviceScene = dynamic(
   { ssr: false, loading: () => <DeviceLoader progress={0} /> }
 )
 
+const PHONE = "(max-width: 767px)"
+function subscribePhone(cb: () => void) {
+  const m = window.matchMedia(PHONE)
+  m.addEventListener("change", cb)
+  return () => m.removeEventListener("change", cb)
+}
+const isPhone = () => window.matchMedia(PHONE).matches
+
 // DA « fiche technique » sur fond noir (texte clair, filets fins, un gros titre), tout centré
 export function HomeV2() {
   const [open, setOpen] = useState(false)
   const [screensOn, setScreensOn] = useState(false)
   // l'intro du plugin (la veste qui glisse) attend que les écrans soient allumés
   const p = usePlugin({ introReady: screensOn })
+
+  // Sur téléphone, la page défile même au doigt sur l'objet ; un tap le passe en plein écran,
+  // où tous les gestes vont à l'objet (glisser la veste, tourner le cadran, la molette)
+  const phone = useSyncExternalStore(subscribePhone, isPhone, () => false)
+  const [focus, setFocus] = useState(false)
+  const focused = phone && focus
+  useEffect(() => {
+    if (!focused) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [focused])
+
+  // la vidéo ne se charge que sur grand écran, une fois la page affichée
+  const [videoReady, setVideoReady] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setVideoReady(true), 2500)
+    return () => clearTimeout(t)
+  }, [])
 
   // à l'arrivée, l'objet s'ouvre tout seul après un court instant
   useEffect(() => {
@@ -69,12 +98,46 @@ export function HomeV2() {
 
       {/* L'objet, centré, sur toute la place restante */}
       <main className="relative h-[80svh] shrink-0 md:h-auto md:min-h-0 md:flex-1">
-        <DeviceScene
-          p={p}
-          open={open}
-          onOpenChange={setOpen}
-          onScreensOn={setScreensOn}
-        />
+        <div
+          className={
+            focused
+              ? "fixed inset-0 z-40 touch-none bg-black"
+              : "absolute inset-0"
+          }
+        >
+          <DeviceScene
+            p={p}
+            open={open}
+            onOpenChange={setOpen}
+            onScreensOn={setScreensOn}
+            focus={focused}
+          />
+          {focused && (
+            <button
+              type="button"
+              onClick={() => setFocus(false)}
+              className="absolute top-4 right-4 inline-flex h-8 cursor-pointer items-center rounded-full bg-[#2e2e30] px-4 text-[10px] font-bold tracking-[0.08em] text-[#f2f2f2] uppercase focus-visible:outline-none"
+            >
+              Done
+            </button>
+          )}
+        </div>
+        {/* téléphone, hors plein écran : un tap sur l'objet l'ouvre en plein écran (la page défile toujours) */}
+        {phone && !focused && (
+          <button
+            type="button"
+            aria-label="Use the device full screen"
+            onClick={() => {
+              setOpen(true)
+              setFocus(true)
+            }}
+            className="absolute inset-0 z-10 flex cursor-pointer items-end justify-center pb-10 focus-visible:outline-none"
+          >
+            <span className="rounded-full bg-[#2e2e30] px-4 py-2 text-[10px] font-bold tracking-[0.08em] text-[#f2f2f2] uppercase">
+              Tap to use
+            </span>
+          </button>
+        )}
         {/* Ouvrir / refermer, aussi au clavier */}
         <button
           type="button"
@@ -96,10 +159,8 @@ export function HomeV2() {
         </a>
       </footer>
 
-      {/* La vidéo en vignette, en bas à droite. Masquée sur téléphone : elle passerait sur l'objet */}
-      <div className="hidden md:block">
-        <FloatingVideo flat />
-      </div>
+      {/* La vidéo en vignette, en bas à droite, sur grand écran seulement (pas chargée sur téléphone) */}
+      {!phone && videoReady && <FloatingVideo flat />}
     </div>
   )
 }

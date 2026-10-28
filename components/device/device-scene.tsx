@@ -19,12 +19,14 @@ import type { PluginState } from "@/components/playground/use-plugin"
 import { tick } from "@/lib/hugtype/sound"
 
 const MODEL = "/models/hugtype-device.glb"
+// le modèle est compressé (Draco) : le décodeur est servi par le site lui-même
+const DRACO = "/draco/"
 
 // Dimensions de l'objet (en unités Blender, cf. blender/hugtype-device.blend)
 const OPEN_H = 8.6
 const OPEN_W = 5.3
 // hauteur cadrée quand l'objet est fermé : bien plus que sa taille réelle (≈ 4.4), pour qu'il reste petit
-const CLOSED_H = 9
+const CLOSED_H = 8.2
 const BOTTOM_CENTER = -2.175
 
 // Un cran de molette = une dent (48 dents) = 1 px de réglage
@@ -46,11 +48,14 @@ export function DeviceScene({
   open,
   onOpenChange,
   onScreensOn,
+  focus = false,
 }: {
   p: PluginState
   open: boolean
   onOpenChange: (open: boolean) => void
   onScreensOn: (on: boolean) => void
+  // plein écran sur téléphone : l'objet est cadré au plus près
+  focus?: boolean
 }) {
   // l'objet est chargé et affiché : on retire l'écran de chargement
   const [ready, setReady] = useState(false)
@@ -76,6 +81,7 @@ export function DeviceScene({
           onOpenChange={onOpenChange}
           onScreensOn={onScreensOn}
           onReady={() => setReady(true)}
+          focus={focus}
         />
         {/* occlusion ambiante : assombrit les creux (écrans encastrés, charnière, fente de la molette),
           puis rendu « neutre » qui garde les couleurs saturées */}
@@ -102,7 +108,7 @@ function Studio() {
   return (
     <>
       <Environment
-        files="/hdri/studio_small_08_1k.hdr"
+        files="/hdri/studio_small_08_512.hdr"
         environmentIntensity={0.9}
       />
       <directionalLight
@@ -131,14 +137,16 @@ function Device({
   onOpenChange,
   onScreensOn,
   onReady,
+  focus,
 }: {
   p: PluginState
   open: boolean
   onOpenChange: (open: boolean) => void
   onScreensOn: (on: boolean) => void
   onReady: () => void
+  focus: boolean
 }) {
-  const { scene } = useGLTF(MODEL)
+  const { scene } = useGLTF(MODEL, DRACO)
   // le modèle est chargé (sinon ce composant serait encore en attente) : on le signale
   useEffect(() => onReady(), [onReady])
   const root = useRef<THREE.Group>(null)
@@ -249,15 +257,17 @@ function Device({
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))
     const aspect = size.width / size.height
     // de l'air autour de l'objet sur grand écran ; sur téléphone, il prend toute la place
-    const margin = aspect < 0.8 ? 1.12 : 1.45
+    const margin = focus ? 1.06 : aspect < 0.8 ? 1.02 : 1.32
     const h = THREE.MathUtils.lerp(CLOSED_H, OPEN_H, k) * margin
     const w = OPEN_W * margin
     const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect))
     const targetY = THREE.MathUtils.lerp(BOTTOM_CENTER, 0, k)
     // on vise un peu sous le centre : l'objet remonte vers le texte au-dessus
     const lift = h * 0.08
-    cam.position.set(0, targetY - lift, dist)
-    cam.lookAt(0, targetY - lift, 0)
+    // en plein écran, on décale un peu vers la droite pour garder la molette dans le cadre
+    const shiftX = focus ? 0.2 * k : 0
+    cam.position.set(shiftX, targetY - lift, dist)
+    cam.lookAt(shiftX, targetY - lift, 0)
 
     // Molette : elle tourne d'une dent par pixel de réglage
     const wheel = state.scene.getObjectByName("Wheel")
@@ -483,4 +493,4 @@ function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-useGLTF.preload(MODEL)
+useGLTF.preload(MODEL, DRACO)
