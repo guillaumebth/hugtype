@@ -50,14 +50,14 @@ export function FloatingVideo({
           rotate: place ? `${place.rot}deg` : undefined,
         }}
         className={
-          "fixed w-40 cursor-grab touch-none select-none focus-visible:outline-none active:cursor-grabbing md:w-60 " +
+          "fixed w-40 cursor-grab touch-none select-none rounded-lg focus-visible:outline-none active:cursor-grabbing md:w-60 " +
           (flat
             ? "focus-visible:outline-2 focus-visible:outline-[#222] "
             : "border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:border-white/40 focus-visible:border-white ") +
           (left == null ? "right-4 bottom-4" : "")
         }
       >
-        <div className="overflow-hidden bg-black">
+        <div className="overflow-hidden rounded-lg bg-black">
           <video
             src={SRC}
             poster={POSTER}
@@ -87,7 +87,7 @@ export function FloatingVideo({
             loop
             playsInline
             style={{ width: "min(84vw, calc(82svh * 16 / 9))" }}
-            className="aspect-video shadow-[0_16px_48px_rgba(0,0,0,0.3)]"
+            className="aspect-video rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.3)]"
           />
         </Lightbox>
       )}
