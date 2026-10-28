@@ -76,7 +76,7 @@ export function HomeV2() {
       </div>
 
       {/* Titre, centré */}
-      <h1 className="shrink-0 px-5 pt-3 pb-2 text-center text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-medium tracking-[-0.03em] md:px-8">
+      <h1 className="shrink-0 px-5 pt-3 pb-2 text-center text-[#ff3410] text-[clamp(3rem,7.5vw,7rem)] leading-[0.95] font-medium tracking-[-0.03em] md:px-8">
         HUGTYPE™
       </h1>
 

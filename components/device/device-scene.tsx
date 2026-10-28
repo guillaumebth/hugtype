@@ -26,7 +26,7 @@ const DRACO = "/draco/"
 const OPEN_H = 8.6
 const OPEN_W = 5.3
 // hauteur cadrée quand l'objet est fermé : bien plus que sa taille réelle (≈ 4.4), pour qu'il reste petit
-const CLOSED_H = 8.2
+const CLOSED_H = 7.5
 const BOTTOM_CENTER = -2.175
 
 // Un cran de molette = une dent (48 dents) = 1 px de réglage
@@ -257,13 +257,13 @@ function Device({
     const tan = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))
     const aspect = size.width / size.height
     // de l'air autour de l'objet sur grand écran ; sur téléphone, il prend toute la place
-    const margin = focus ? 1.06 : aspect < 0.8 ? 1.02 : 1.32
+    const margin = focus ? 1.06 : aspect < 0.8 ? 1.02 : 1.2
     const h = THREE.MathUtils.lerp(CLOSED_H, OPEN_H, k) * margin
     const w = OPEN_W * margin
     const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect))
     const targetY = THREE.MathUtils.lerp(BOTTOM_CENTER, 0, k)
     // on vise un peu sous le centre : l'objet remonte vers le texte au-dessus
-    const lift = h * 0.08
+    const lift = h * 0.035
     // en plein écran, on décale un peu vers la droite pour garder la molette dans le cadre
     const shiftX = focus ? 0.2 * k : 0
     cam.position.set(shiftX, targetY - lift, dist)
