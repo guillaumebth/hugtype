@@ -59,7 +59,7 @@ export function HomeV2() {
   }, [])
 
   return (
-    <div className="flex min-h-svh flex-col bg-black text-[#ececec] md:h-svh md:overflow-hidden">
+    <div className="flex min-h-svh flex-col bg-[#b4b4b4] text-[#1a1a1a] md:h-svh md:overflow-hidden">
       {/* Bandeau du haut */}
       <div className="flex shrink-0 items-center justify-between gap-4 px-5 pt-5 pb-2 text-[13px] md:px-8 md:pt-7">
         <p className="tracking-tight">
@@ -104,7 +104,7 @@ export function HomeV2() {
         <div
           className={
             focused
-              ? "fixed inset-0 z-40 touch-none bg-black"
+              ? "fixed inset-0 z-40 touch-none bg-[#b4b4b4]"
               : "absolute inset-0"
           }
         >
@@ -141,7 +141,7 @@ export function HomeV2() {
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="absolute bottom-2 left-1/2 hidden -translate-x-1/2 cursor-pointer text-[13px] tracking-tight text-[#8c8c8c] transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none md:block"
+          className="absolute bottom-2 left-1/2 hidden -translate-x-1/2 cursor-pointer text-[13px] tracking-tight text-[#3d3d3d] transition-colors hover:text-black focus-visible:text-black focus-visible:outline-none md:block"
         >
           {open ? "Close" : "Click to open"}
         </button>
@@ -168,7 +168,7 @@ export function HomeV2() {
           href="https://www.bguillaume.info"
           target="_blank"
           rel="noreferrer"
-          className="text-[#8c8c8c] hover:text-white focus-visible:text-white focus-visible:outline-none"
+          className="text-[#3d3d3d] hover:text-black focus-visible:text-black focus-visible:outline-none"
         >
           Built by bguillaume.info
         </a>
